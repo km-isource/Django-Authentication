@@ -14,7 +14,16 @@ class Post(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)
+            base_slug = slugify(self.title)
+            unique_slug = base_slug
+            counter = 1
+            while True:
+                if Post.objects.filter(slug=unique_slug).exclude(pk=self.pk).exists():
+                    unique_slug = f"{base_slug}-{counter}"
+                    counter += 1
+                else:
+                    break
+            self.slug = unique_slug
         super(Post, self).save(*args, **kwargs)
     
     def __str__(self):
